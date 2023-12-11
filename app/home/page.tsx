@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { HiHome, HiInformationCircle, HiPhone, HiCalendar, HiMail, HiGlobe } from "react-icons/hi";
 import AppointmentBookingPage from "@/components/AppointmentBookingPage";
+import Footer from "@/components/Footer";
 
 const Home = () => {
   const scrollToSection = (id) => {
@@ -162,10 +163,16 @@ const Home = () => {
 </section>
 
 
-      <section id="appointment" className="p-4">
+      <section id="appointment" className="flex flex-col justify-center items-center bg-gray-200 p-4 text-gray-700">
         <AppointmentBookingPage />
       </section>
+
+      <section id="footer" className="flex flex-col">
+        <Footer />
+      </section>
     </div>
+
+    
   );
 };
 
