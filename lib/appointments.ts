@@ -1,14 +1,17 @@
 import { createClient } from '@/utils/supabase/client'
-import { cookies } from 'next/headers'
+import { Database } from '@/types';
 
-export const getAvailableTimes = async (date: Date) => {
+type Appointments = Database['public']['Tables']['appointments']['Row'];
+type AvailableTimes = Database['public']['Tables']['available_times']['Row'];
+type ContactUs = Database['public']['Tables']['contact_us']['Row'];
 
-  const supabase = createClient();
+const supabase = createClient();
+
+export const getAvailableTimes = async () => {
 
   const { data, error } = await supabase
     .from("available_times")
-    .select("*")
-    .match({ date: date.toISOString().split("T")[0] });
+    .select("*");
 
   if (error) {
     console.error(error);
@@ -18,7 +21,7 @@ export const getAvailableTimes = async (date: Date) => {
   return data.map((time) => time.time);
 };
 
-export const bookAppointment = async (appointment: Appointment) => {
+export const bookAppointment = async (appointment: Appointments) => {
   const { error } = await supabase
     .from("appointments")
     .insert([appointment]);
@@ -28,12 +31,3 @@ export const bookAppointment = async (appointment: Appointment) => {
     throw new Error("Error booking appointment");
   }
 };
-
-interface Appointment {
-  user_id: string; // Replace with user ID retrieval logic
-  date: string;
-  start_time: string;
-  end_time: string; // Implement end time logic
-  code: string;
-  email: string;
-}
