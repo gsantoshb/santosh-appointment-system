@@ -11,6 +11,7 @@ const AppointmentBookingPage = () => {
   const [verificationError, setVerificationError] = useState("");
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] =useState<string>();
 
   const supabase = createClientComponentClient();
 
@@ -67,6 +68,7 @@ const AppointmentBookingPage = () => {
     }
 
     const userId = authUser.user.id;
+    setUserId(userId);
 
     // OTP verification successful, check if the user is already in public.users
     const { data: existingUser, error: selectError } = await supabase
@@ -86,8 +88,10 @@ const AppointmentBookingPage = () => {
       }
 
       console.log("User inserted into public.users:", insertedUser);
+      setUserId(userId);
     } else {
       console.log("User already exists in public.users:", existingUser);
+      setUserId(existingUser.id);
     }
     } finally {
       setIsLoading(false);
@@ -106,7 +110,7 @@ const AppointmentBookingPage = () => {
     <div>
       {verificationError && <p className="text-red-500">{verificationError}</p>}
       {!isOtpVerified && <VerifyOtp otp={otp} onVerify={verifyOtp} />}
-      {isOtpVerified && <AppointmentCalendar />}
+      {isOtpVerified && <AppointmentCalendar userId={userId} />}
       {/* <AppointmentCalendar /> */}
     </div>
   );

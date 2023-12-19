@@ -4,16 +4,20 @@ import { Database } from '@/types';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 type Slots = Database['public']['Tables']['slots']['Row'];
 
 const EST_TIME_ZONE='America/New_York';
 
-const AppointmentCalendar = () => {
+const AppointmentCalendar = ({userId}:{userId:string|undefined}) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [availableSlots, setAvailableSlots] = useState<Slots[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Slots | null>(null);
   const [name, setName] = useState('');
+  const supabase = createClientComponentClient();
+
+ 
 
   useEffect(() => {
     // Fetch available slots when the component mounts
@@ -46,14 +50,62 @@ const AppointmentCalendar = () => {
     setSelectedSlot(slot);
   };
 
-  const handleBookSlot = () => {
+  const handleBookSlot = async (userId: string) => {
     // Add your logic to book the selected slot
+
     console.log(`Booking slot ${selectedSlot?.appointment_time} on ${selectedSlot?.appointment_date} for ${name}`);
-    // Reset state
-    setSelectedDate(null);
-    setSelectedSlot(null);
-    setName('');
+    handleBookSlotQuery(selectedSlot?.id, userId, name).then(()=>{
+      // Reset state
+      setSelectedDate(null);
+      setSelectedSlot(null);
+      setName('');
+    });
   };
+
+  async function handleBookSlotQuery(slotId: number | undefined, userId: string | undefined, userName: string) {
+    try {
+
+
+      // Insert a row into the appointment_details table
+      const { data: appointmentDetails, error: insertError } = await supabase
+        .from('appointment_details')
+        .insert([
+          {
+            user_id: userId,
+            user_name: userName,
+          },
+        ])
+        .select('*').single();
+  
+      if (insertError) {
+        throw new Error(`Error inserting into appointment_details: ${insertError.message}`);
+      }
+  
+      console.log('Appointment details inserted:', appointmentDetails);
+  
+
+      // Update the slots table
+      const { data: updatedSlot, error: updateError } = await supabase
+        .from('slots')
+        .update({
+          booked: 'reserved',
+          booked_user_id: userId,
+          appointment_details_id: appointmentDetails.id
+        })
+        .eq('id', slotId)
+        .select('*').single();
+  
+      if (updateError) {
+        throw new Error(`Error updating slot: ${updateError.message}`);
+      }
+  
+      console.log('Slot updated:', updatedSlot);
+  
+    } catch (error) {
+      console.error('Error:', error.message);
+      // Handle error as needed
+    }
+  }
 
   return (
     <div className="max-w-3xl mx-auto mt-10">
@@ -95,7 +147,7 @@ const AppointmentCalendar = () => {
               />
 
               <button
-                onClick={handleBookSlot}
+                onClick={()=> handleBookSlot(userId)}
                 className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
               >
                 Book Slot
