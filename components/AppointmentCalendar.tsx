@@ -15,12 +15,16 @@ const AppointmentCalendar = ({userId}:{userId:string|undefined}) => {
   const [availableSlots, setAvailableSlots] = useState<Slots[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Slots | null>(null);
   const [name, setName] = useState('');
+  const [userSlot, setUserSlot] = useState<Slots>();
+
   const supabase = createClientComponentClient();
 
  
 
   useEffect(() => {
     // Fetch available slots when the component mounts
+    fetchUserSlot(userId);
+
     fetchAvailableSlots();
   }, []);
 
@@ -30,6 +34,27 @@ const AppointmentCalendar = ({userId}:{userId:string|undefined}) => {
       fetchAvailableSlots();
     }
   }, [selectedDate]);
+
+  // Function to fetch user's booked slot
+  const fetchUserSlot = async (userId:string|undefined) => {
+    try {
+      const { data: userSlotData, error } = await supabase
+        .from('slots')
+        .select('id, appointment_date, appointment_time')
+        .eq('booked_user_id', userId)
+        .single();
+
+      if (error) {
+        throw new Error(`Error fetching user slot: ${error.message}`);
+      }
+
+      setUserSlot(userSlotData);
+
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
+
 
   const fetchAvailableSlots = async () => {
     try {
@@ -50,7 +75,7 @@ const AppointmentCalendar = ({userId}:{userId:string|undefined}) => {
     setSelectedSlot(slot);
   };
 
-  const handleBookSlot = async (userId: string) => {
+  const handleBookSlot = async (userId: string | undefined) => {
     // Add your logic to book the selected slot
 
     console.log(`Booking slot ${selectedSlot?.appointment_time} on ${selectedSlot?.appointment_date} for ${name}`);
@@ -100,6 +125,9 @@ const AppointmentCalendar = ({userId}:{userId:string|undefined}) => {
       }
   
       console.log('Slot updated:', updatedSlot);
+
+      fetchUserSlot(userId);
+
   
     } catch (error) {
       console.error('Error:', error.message);
@@ -110,6 +138,14 @@ const AppointmentCalendar = ({userId}:{userId:string|undefined}) => {
   return (
     <div className="max-w-3xl mx-auto mt-10">
       <div className="mb-4">
+      {userSlot && (
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
+          <h2 className="text-lg font-semibold">Your Current Slot:</h2>
+          <p>Date: {userSlot.appointment_date}</p>
+          <p>Time: {userSlot.appointment_time}</p>
+          </div>
+      )}
+
         <label className="block mb-2 text-lg font-bold">Choose a Date:</label>
         <DatePicker
           selected={selectedDate}
