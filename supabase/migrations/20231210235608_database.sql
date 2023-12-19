@@ -1,26 +1,29 @@
 -- Create users table
 CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL
 );
 
--- Create available_times table
-CREATE TABLE available_times (
-  id SERIAL PRIMARY KEY,
-  availability_date_time_start TIMESTAMPTZ,
-  duration INTERVAL NOT NULL
-);
+create type booked_type as enum ('reserved', 'available');
 
 -- Create appointments table
-CREATE TABLE appointments (
+CREATE TABLE appointment_details (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  date_of_appt DATE NOT NULL,
-  start_time TIME NOT NULL,
-  duration INTERVAL NOT NULL,
-  email VARCHAR(255),
+  user_id UUID NOT NULL REFERENCES users(id),
+  user_name VARCHAR(255) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create available_times table
+CREATE TABLE slots (
+  id SERIAL PRIMARY KEY,
+  appointment_date DATE NOT NULL, 
+  appointment_time TIME NOT NULL,
+  booked booked_type NOT NULL DEFAULT 'available',
+  booked_user_id UUID REFERENCES users(id),
+  appointment_details_id INTEGER REFERENCES appointment_details(id)
+);
+
 
 CREATE TABLE contact_us (
     id SERIAL PRIMARY KEY,
@@ -32,13 +35,9 @@ CREATE TABLE contact_us (
 
 
 -- Create indexes for faster queries
-CREATE INDEX idx_appointments_user_id ON appointments (user_id);
-CREATE INDEX idx_appointments_date ON appointments (date_of_appt);
-CREATE INDEX idx_appointments_start_time ON appointments (start_time);
+CREATE INDEX idx_appointments_user_id ON slots (appointment_date);
 
 -- Grant necessary permissions
-GRANT SELECT, UPDATE, DELETE ON appointments TO authenticated;
+GRANT SELECT, UPDATE, DELETE ON appointment_details TO authenticated;
 
--- Grant SELECT permission on available_times to everyone
-GRANT SELECT ON available_times TO public;
 

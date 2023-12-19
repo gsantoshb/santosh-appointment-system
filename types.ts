@@ -34,60 +34,33 @@ export interface Database {
   }
   public: {
     Tables: {
-      appointments: {
+      appointment_details: {
         Row: {
           created_at: string | null
-          date_of_appt: string
-          duration: unknown
-          email: string | null
           id: number
-          start_time: string
-          user_id: number
+          user_id: string
+          user_name: string
         }
         Insert: {
           created_at?: string | null
-          date_of_appt: string
-          duration: unknown
-          email?: string | null
           id?: number
-          start_time: string
-          user_id: number
+          user_id: string
+          user_name: string
         }
         Update: {
           created_at?: string | null
-          date_of_appt?: string
-          duration?: unknown
-          email?: string | null
           id?: number
-          start_time?: string
-          user_id?: number
+          user_id?: string
+          user_name?: string
         }
         Relationships: [
           {
-            foreignKeyName: "appointments_user_id_fkey"
+            foreignKeyName: "appointment_details_user_id_fkey"
             columns: ["user_id"]
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
         ]
-      }
-      available_times: {
-        Row: {
-          availability_date_time_start: string | null
-          duration: unknown
-          id: number
-        }
-        Insert: {
-          availability_date_time_start?: string | null
-          duration: unknown
-          id?: number
-        }
-        Update: {
-          availability_date_time_start?: string | null
-          duration?: unknown
-          id?: number
-        }
-        Relationships: []
       }
       contact_us: {
         Row: {
@@ -113,18 +86,58 @@ export interface Database {
         }
         Relationships: []
       }
-      users: {
+      slots: {
         Row: {
-          email: string
+          appointment_date: string
+          appointment_details_id: number | null
+          appointment_time: string
+          booked: Database["public"]["Enums"]["booked_type"]
+          booked_user_id: string | null
           id: number
         }
         Insert: {
-          email: string
+          appointment_date: string
+          appointment_details_id?: number | null
+          appointment_time: string
+          booked?: Database["public"]["Enums"]["booked_type"]
+          booked_user_id?: string | null
           id?: number
         }
         Update: {
-          email?: string
+          appointment_date?: string
+          appointment_details_id?: number | null
+          appointment_time?: string
+          booked?: Database["public"]["Enums"]["booked_type"]
+          booked_user_id?: string | null
           id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slots_appointment_details_id_fkey"
+            columns: ["appointment_details_id"]
+            referencedRelation: "appointment_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slots_booked_user_id_fkey"
+            columns: ["booked_user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      users: {
+        Row: {
+          email: string
+          id: string
+        }
+        Insert: {
+          email: string
+          id: string
+        }
+        Update: {
+          email?: string
+          id?: string
         }
         Relationships: []
       }
@@ -136,7 +149,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      booked_type: "reserved" | "available"
     }
     CompositeTypes: {
       [_ in never]: never

@@ -1,16 +1,17 @@
 import { createClient } from '@/utils/supabase/client'
 import { Database } from '@/types';
 
-type Appointments = Database['public']['Tables']['appointments']['Row'];
-type AvailableTimes = Database['public']['Tables']['available_times']['Row'];
+type AppointmentDetails = Database['public']['Tables']['appointment_details']['Row'];
+type Slots = Database['public']['Tables']['slots']['Row'];
 type ContactUs = Database['public']['Tables']['contact_us']['Row'];
 
 const supabase = createClient();
 
-export const getAvailableTimes = async () => {
+
+export const getSlots = async () => {
 
   const { data, error } = await supabase
-    .from("available_times")
+    .from("slots")
     .select("*");
 
   if (error) {
@@ -18,16 +19,5 @@ export const getAvailableTimes = async () => {
     throw new Error("Error fetching available times");
   }
 
-  return data.map((time) => time.time);
-};
-
-export const bookAppointment = async (appointment: Appointments) => {
-  const { error } = await supabase
-    .from("appointments")
-    .insert([appointment]);
-
-  if (error) {
-    console.error(error);
-    throw new Error("Error booking appointment");
-  }
+  return data;
 };
