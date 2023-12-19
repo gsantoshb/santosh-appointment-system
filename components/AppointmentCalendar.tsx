@@ -90,6 +90,22 @@ const AppointmentCalendar = ({userId}:{userId:string|undefined}) => {
   async function handleBookSlotQuery(slotId: number | undefined, userId: string | undefined, userName: string) {
     try {
 
+            // Update the existing booked slot if available
+            if (userSlot) {
+              const { error: updateError } = await supabase
+                .from('slots')
+                .update({
+                  booked: 'available',
+                  booked_user_id: null,
+                  appointment_details_id: null
+                })
+                .eq('id', userSlot.id);
+      
+              if (updateError) {
+                throw new Error(`Error updating existing slot: ${updateError.message}`);
+              }
+            }
+
 
       // Insert a row into the appointment_details table
       const { data: appointmentDetails, error: insertError } = await supabase
