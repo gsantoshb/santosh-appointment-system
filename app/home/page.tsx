@@ -2,12 +2,12 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { HiHome, HiInformationCircle, HiPhone, HiCalendar, HiMail, HiGlobe } from "react-icons/hi";
+import { HiInformationCircle, HiPhone, HiCalendar, HiMail, HiGlobe } from "react-icons/hi";
 import AppointmentBookingPage from "@/components/AppointmentBookingPage";
 import Footer from "@/components/Footer";
 
 const Home = () => {
-  const scrollToSection = (id) => {
+  const scrollToSection = (id:string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });

@@ -11,6 +11,7 @@ CREATE TABLE appointment_details (
   id SERIAL PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id),
   user_name VARCHAR(255) NOT NULL,
+  notes TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 

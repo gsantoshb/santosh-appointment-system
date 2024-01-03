@@ -15,7 +15,7 @@ const AppointmentBookingPage = () => {
 
   const supabase = createClientComponentClient();
 
-  const sendOtp = async (userEmail) => {
+  const sendOtp = async (userEmail:string) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithOtp({
@@ -36,7 +36,7 @@ const AppointmentBookingPage = () => {
    
   };
 
-  const verifyOtp = async (userOtp) => {
+  const verifyOtp = async (userOtp:string) => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.verifyOtp({
