@@ -111,7 +111,6 @@ const AppointmentBookingPage = () => {
       {verificationError && <p className="text-red-500">{verificationError}</p>}
       {!isOtpVerified && <VerifyOtp otp={otp} onVerify={verifyOtp} />}
       {isOtpVerified && <AppointmentCalendar userId={userId} />}
-      {/* <AppointmentCalendar /> */}
     </div>
   );
 };
